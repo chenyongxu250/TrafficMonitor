@@ -1,0 +1,80 @@
+#pragma code_page(65001)
+
+#include <winres.h>
+
+#include "src/resource.h"
+#include "src/Version.h"
+
+// Default configuration: the same file that also ships in the release zip.
+IDR_DEFAULT_CONFIG RCDATA "config\\PeripheralBattery.ini"
+
+// Settings window (ITMPlugin::ShowOptionsDialog), logic in src/ui/OptionsDialog.cpp
+IDD_OPTIONS DIALOGEX 0, 0, 320, 250
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Peripheral Battery – Settings"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "General", IDC_STATIC, 7, 7, 306, 94
+    LTEXT           "Poll interval:", IDC_STATIC, 15, 22, 70, 8
+    EDITTEXT        IDC_INTERVAL, 90, 20, 32, 12, ES_NUMBER | ES_AUTOHSCROLL
+    LTEXT           "seconds (15 to 3600)", IDC_STATIC, 127, 22, 150, 8
+    LTEXT           "Warn at:", IDC_STATIC, 15, 38, 70, 8
+    EDITTEXT        IDC_LOW_WARNING, 90, 36, 32, 12, ES_NUMBER | ES_AUTOHSCROLL
+    LTEXT           "% battery (0 = no warning)", IDC_STATIC, 127, 38, 150, 8
+    AUTOCHECKBOX    "Colored: value red when the battery is low, green while charging", IDC_COLORS, 15, 54, 290, 10
+    AUTOCHECKBOX    "% sign", IDC_SHOW_PERCENT, 15, 69, 90, 10
+    AUTOCHECKBOX    "“—” when disconnected", IDC_SHOW_DISCONNECTED, 110, 69, 95, 10
+    AUTOCHECKBOX    "“⚡” while charging", IDC_SHOW_CHARGING, 210, 69, 95, 10
+    AUTOCHECKBOX    "Verbose log (every poll cycle)", IDC_VERBOSE, 15, 84, 290, 10
+
+    GROUPBOX        "Headphones", IDC_STATIC, 7, 106, 150, 82
+    AUTOCHECKBOX    "Query device", IDC_HP_ENABLED, 15, 120, 130, 10
+    LTEXT           "Source:", IDC_STATIC, 15, 137, 45, 8
+    COMBOBOX        IDC_HP_PROVIDER, 62, 135, 88, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Device:", IDC_STATIC, 15, 153, 45, 8
+    COMBOBOX        IDC_HP_NAME, 62, 151, 88, 90, CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Label:", IDC_STATIC, 15, 169, 45, 8
+    EDITTEXT        IDC_HP_LABEL, 62, 167, 88, 12, ES_AUTOHSCROLL
+
+    GROUPBOX        "Mouse", IDC_STATIC, 163, 106, 150, 82
+    AUTOCHECKBOX    "Query device", IDC_MS_ENABLED, 171, 120, 130, 10
+    LTEXT           "Source:", IDC_STATIC, 171, 137, 45, 8
+    COMBOBOX        IDC_MS_PROVIDER, 218, 135, 88, 60, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Device:", IDC_STATIC, 171, 153, 45, 8
+    COMBOBOX        IDC_MS_NAME, 218, 151, 88, 90, CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Label:", IDC_STATIC, 171, 169, 45, 8
+    EDITTEXT        IDC_MS_LABEL, 218, 167, 88, 12, ES_AUTOHSCROLL
+
+    LTEXT           "Device: part of the name; empty for Logitech = first device found. The label applies when “Colored” is on – otherwise set it in TrafficMonitor under “Display settings”.", IDC_HINT, 7, 194, 306, 26
+    DEFPUSHBUTTON   "OK", IDOK, 207, 228, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 263, 228, 50, 14
+END
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION PBP_VERSION_MAJOR, PBP_VERSION_MINOR, PBP_VERSION_PATCH, 0
+ PRODUCTVERSION PBP_VERSION_MAJOR, PBP_VERSION_MINOR, PBP_VERSION_PATCH, 0
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+ FILEFLAGS 0x0L
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_DLL
+ FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "Ariazonaa"
+            VALUE "FileDescription", "TrafficMonitor plugin: battery level of peripheral devices"
+            VALUE "FileVersion", PBP_VERSION_STRING
+            VALUE "InternalName", "PeripheralBatteryPlugin"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Ariazonaa, MIT License"
+            VALUE "OriginalFilename", "PeripheralBatteryPlugin.dll"
+            VALUE "ProductName", "PeripheralBatteryPlugin"
+            VALUE "ProductVersion", PBP_VERSION_STRING
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END

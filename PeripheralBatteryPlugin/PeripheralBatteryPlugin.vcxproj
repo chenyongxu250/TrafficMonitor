@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{73B937A3-19DE-4E10-8F33-011D81F89267}</ProjectGuid>
+    <RootNamespace>PeripheralBatteryPlugin</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <!-- Offizielle TrafficMonitor-Header als "extern" markieren: deren Warnungen sind nicht unsere. -->
+    <ExternalIncludePath>$(ProjectDir)include;$(ExternalIncludePath)</ExternalIncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/utf-8 /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <!-- WindowsApp: C++/WinRT (Bluetooth); hid + setupapi: Logitech HID++ -->
+      <AdditionalDependencies>WindowsApp.lib;hid.lib;setupapi.lib;cfgmgr32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- Statische CRT: keine Abhängigkeit von einer bestimmten VC++-Redistributable. -->
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Plugin.cpp" />
+    <ClCompile Include="src\battery\BatteryManager.cpp" />
+    <ClCompile Include="src\battery\StatusFilter.cpp" />
+    <ClCompile Include="src\bluetooth\BluetoothScanner.cpp" />
+    <ClCompile Include="src\bluetooth\BluetoothWatcher.cpp" />
+    <ClCompile Include="src\hidpp\HidppListener.cpp" />
+    <ClCompile Include="src\config\Config.cpp" />
+    <ClCompile Include="src\hidpp\HidDevice.cpp" />
+    <ClCompile Include="src\hidpp\HidppDevice.cpp" />
+    <ClCompile Include="src\hidpp\LogitechScanner.cpp" />
+    <ClCompile Include="src\items\BatteryItem.cpp" />
+    <ClCompile Include="src\items\HeadphonesBatteryItem.cpp" />
+    <ClCompile Include="src\items\MouseBatteryItem.cpp" />
+    <ClCompile Include="src\items\KeyboardBatteryItem.cpp" />
+    <ClCompile Include="src\providers\LogitechHidppProvider.cpp" />
+    <ClCompile Include="src\providers\WindowsBluetoothProvider.cpp" />
+    <ClCompile Include="src\utils\Logger.cpp" />
+    <ClCompile Include="src\utils\UiNotifier.cpp" />
+    <ClCompile Include="src\ui\OptionsDialog.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\PluginInterface.h" />
+    <ClInclude Include="src\Plugin.h" />
+    <ClInclude Include="src\battery\BatteryManager.h" />
+    <ClInclude Include="src\battery\BatteryStatus.h" />
+    <ClInclude Include="src\battery\IBatteryProvider.h" />
+    <ClInclude Include="src\battery\StatusFilter.h" />
+    <ClInclude Include="src\bluetooth\BluetoothScanner.h" />
+    <ClInclude Include="src\bluetooth\BluetoothWatcher.h" />
+    <ClInclude Include="src\hidpp\HidppListener.h" />
+    <ClInclude Include="src\hidpp\LinkRegistry.h" />
+    <ClInclude Include="src\config\Config.h" />
+    <ClInclude Include="src\hidpp\HidDevice.h" />
+    <ClInclude Include="src\hidpp\HidppDevice.h" />
+    <ClInclude Include="src\hidpp\HidppProtocol.h" />
+    <ClInclude Include="src\hidpp\LogitechScanner.h" />
+    <ClInclude Include="src\items\BatteryItem.h" />
+    <ClInclude Include="src\items\HeadphonesBatteryItem.h" />
+    <ClInclude Include="src\items\MouseBatteryItem.h" />
+    <ClInclude Include="src\items\KeyboardBatteryItem.h" />
+    <ClInclude Include="src\providers\LogitechHidppProvider.h" />
+    <ClInclude Include="src\providers\WindowsBluetoothProvider.h" />
+    <ClInclude Include="src\utils\Logger.h" />
+    <ClInclude Include="src\utils\UiNotifier.h" />
+    <ClInclude Include="src\ui\OptionsDialog.h" />
+    <ClInclude Include="src\resource.h" />
+    <ClInclude Include="src\Version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PeripheralBatteryPlugin.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config\PeripheralBattery.ini" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>
