@@ -94,7 +94,7 @@ int AddMissingKeys(const std::wstring& path)
         { L"Headphones", L"Label", L"M4" },
         { L"Mouse", L"Label", L"Mouse" },
         { L"Keyboard", L"Enabled", L"1" },
-        { L"Keyboard", L"Provider", L"WindowsBluetooth" },
+        { L"Keyboard", L"Provider", L"KeyboardAuto" },
         { L"Keyboard", L"NameContains", L"keyboard" },
         { L"Keyboard", L"Label", L"Keyboard" },
     };
@@ -270,8 +270,8 @@ bool WriteDefaultConfigIfMissing(const std::wstring& path)
         L"\r\n[Headphones]\r\n"
         L"Enabled=1\r\n"
         L"Provider=WindowsBluetooth\r\n"
-        L"NameContains=MOMENTUM 4\r\n"
-        L"Label=M4\r\n"
+        L"NameContains=\r\n"
+        L"Label=Headphones\r\n"
         L"\r\n[Mouse]\r\n"
         L"Enabled=1\r\n"
         L"Provider=LogitechHidpp\r\n"
@@ -279,7 +279,7 @@ bool WriteDefaultConfigIfMissing(const std::wstring& path)
         L"Label=Mouse\r\n"
         L"\r\n[Keyboard]\r\n"
         L"Enabled=1\r\n"
-        L"Provider=WindowsBluetooth\r\n"
+        L"Provider=KeyboardAuto\r\n"
         L"NameContains=keyboard\r\n"
         L"Label=Keyboard\r\n";
     if (path.empty())
