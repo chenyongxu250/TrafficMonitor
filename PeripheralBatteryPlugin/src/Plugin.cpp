@@ -38,6 +38,8 @@ IPluginItem* PeripheralBatteryPlugin::GetItem(int index)
         return &headphones_;
     case 1:
         return &mouse_;
+    case 2:
+        return &keyboard_;
     default:
         return nullptr;
     }
@@ -63,7 +65,7 @@ const wchar_t* PeripheralBatteryPlugin::GetInfo(PluginInfoIndex index)
     case TMI_NAME:
         return L"Peripheral Battery";
     case TMI_DESCRIPTION:
-        return L"Shows the battery level of peripheral devices (headphones, mouse) in the taskbar.";
+        return L"Shows battery level of a Logitech mouse, Bluetooth headphones and (best-effort) wireless keyboard.";
     case TMI_AUTHOR:
         return L"Ariazonaa";
     case TMI_COPYRIGHT:
@@ -192,6 +194,12 @@ const wchar_t* PeripheralBatteryPlugin::GetTooltipInfo()
             if (!tooltip_.empty())
                 tooltip_ += L"\r\n";
             tooltip_ += BatteryItem::FormatTooltipLine(L"Mouse", manager_.GetMouseStatus());
+        }
+        if (manager_.IsKeyboardEnabled())
+        {
+            if (!tooltip_.empty())
+                tooltip_ += L"\r\n";
+            tooltip_ += BatteryItem::FormatTooltipLine(L"Keyboard", manager_.GetKeyboardStatus());
         }
         return tooltip_.c_str();
     }
