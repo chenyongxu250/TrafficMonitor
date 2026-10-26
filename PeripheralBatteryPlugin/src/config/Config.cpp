@@ -253,17 +253,52 @@ bool SaveConfig(const std::wstring& path, const Config& config, std::wstring& er
 
 bool WriteDefaultConfigIfMissing(const std::wstring& path)
 {
-    const void* data = nullptr;
-    DWORD size = 0;
-    if (path.empty() || !DefaultFile(data, size))
+    // Write UTF-16LE explicitly: GetPrivateProfileStringW expects a Unicode INI with a UTF-16 BOM.
+    // This also works when the plugin is compiled by GitHub Actions and avoids encoding ambiguity
+    // in source-control text files.
+    static constexpr wchar_t defaults[] =
+        L"; PeripheralBatteryPlugin - settings\r\n"
+        L"; The keyboard provider is best-effort; change NameContains to a part of its Windows device name.\r\n"
+        L"\r\n[General]\r\n"
+        L"UpdateInterval=60\r\n"
+        L"ShowDisconnected=1\r\n"
+        L"ShowPercentSign=1\r\n"
+        L"ShowCharging=1\r\n"
+        L"LowBatteryWarning=15\r\n"
+        L"Colors=1\r\n"
+        L"VerboseLogging=0\r\n"
+        L"\r\n[Headphones]\r\n"
+        L"Enabled=1\r\n"
+        L"Provider=WindowsBluetooth\r\n"
+        L"NameContains=MOMENTUM 4\r\n"
+        L"Label=M4\r\n"
+        L"\r\n[Mouse]\r\n"
+        L"Enabled=1\r\n"
+        L"Provider=LogitechHidpp\r\n"
+        L"NameContains=\r\n"
+        L"Label=Mouse\r\n"
+        L"\r\n[Keyboard]\r\n"
+        L"Enabled=1\r\n"
+        L"Provider=WindowsBluetooth\r\n"
+        L"NameContains=keyboard\r\n"
+        L"Label=Keyboard\r\n";
+    if (path.empty())
         return false;
-    // CREATE_NEW: an existing file of the user is never overwritten.
     HANDLE file = CreateFileW(path.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (file == INVALID_HANDLE_VALUE)
         return false;
-
-    DWORD written = 0;
-    const bool ok = WriteFile(file, data, size, &written, nullptr) && written == size;
+    const BYTE bom[2] = { 0xFF, 0xFE };
+    DWORD writtenBom = 0;
+    DWORD writtenData = 0;
+    const DWORD dataBytes = static_cast<DWORD>((std::size(defaults) - 1) * sizeof(wchar_t));
+    const bool ok = WriteFile(file, bom, sizeof(bom), &writtenBom, nullptr) && writtenBom == sizeof(bom)
+        && WriteFile(file, defaults, dataBytes, &writtenData, nullptr) && writtenData == dataBytes;
+    const DWORD error = GetLastError();
     CloseHandle(file);
+    if (!ok)
+    {
+        DeleteFileW(path.c_str());
+        SetLastError(error);
+    }
     return ok;
 }
