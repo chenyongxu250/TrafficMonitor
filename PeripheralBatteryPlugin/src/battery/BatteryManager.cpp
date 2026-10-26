@@ -47,12 +47,48 @@ namespace
         return config.enabled && EqualsIgnoreCase(config.provider, provider);
     }
 
+    // Best-effort keyboard support tries both Bluetooth properties and Logitech HID++ receiver devices.
+    class KeyboardAutoProvider final : public IBatteryProvider
+    {
+    public:
+        KeyboardAutoProvider(std::wstring filter, hidpp::LinkRegistry* registry)
+            : bluetooth_(filter), logitech_(std::move(filter), registry) {}
+        bool Initialize() override
+        {
+            const bool a = bluetooth_.Initialize();
+            const bool b = logitech_.Initialize();
+            return a || b;
+        }
+        BatteryStatus GetStatus() override
+        {
+            const BatteryStatus bluetooth = bluetooth_.GetStatus();
+            const BatteryStatus logitech = logitech_.GetStatus();
+            if (logitech.available && logitech.percentage >= 0) return logitech;
+            if (bluetooth.available && bluetooth.percentage >= 0) return bluetooth;
+            if (bluetooth.state == BatteryState::Error && logitech.state != BatteryState::Error) return logitech;
+            if (logitech.state == BatteryState::Error && bluetooth.state != BatteryState::Error) return bluetooth;
+            if (logitech.state == BatteryState::Disconnected && bluetooth.state != BatteryState::Unknown) return bluetooth;
+            return bluetooth;
+        }
+        void Refresh() override
+        {
+            bluetooth_.Refresh();
+            logitech_.Refresh();
+        }
+        std::wstring GetProviderName() const override { return L"KeyboardAuto"; }
+    private:
+        WindowsBluetoothProvider bluetooth_;
+        LogitechHidppProvider logitech_;
+    };
+
     std::unique_ptr<IBatteryProvider> CreateProvider(const DeviceConfig& config, hidpp::LinkRegistry* registry)
     {
         if (EqualsIgnoreCase(config.provider, L"WindowsBluetooth"))
             return std::make_unique<WindowsBluetoothProvider>(config.nameContains);
         if (EqualsIgnoreCase(config.provider, L"LogitechHidpp"))
             return std::make_unique<LogitechHidppProvider>(config.nameContains, registry);
+        if (EqualsIgnoreCase(config.provider, L"KeyboardAuto"))
+            return std::make_unique<KeyboardAutoProvider>(config.nameContains, registry);
         return nullptr;
     }
 
@@ -157,8 +193,8 @@ void BatteryManager::WaitForNextRefresh(int intervalSeconds)
 void BatteryManager::StartEventSources(const Config& config)
 {
     // Only start what the configuration needs; once started, they run until process exit.
-    const bool needsHidpp = Uses(config.headphones, L"LogitechHidpp") || Uses(config.mouse, L"LogitechHidpp") || Uses(config.keyboard, L"LogitechHidpp");
-    const bool needsBluetooth = Uses(config.headphones, L"WindowsBluetooth") || Uses(config.mouse, L"WindowsBluetooth") || Uses(config.keyboard, L"WindowsBluetooth");
+    const bool needsHidpp = Uses(config.headphones, L"LogitechHidpp") || Uses(config.mouse, L"LogitechHidpp") || Uses(config.keyboard, L"LogitechHidpp") || Uses(config.keyboard, L"KeyboardAuto");
+    const bool needsBluetooth = Uses(config.headphones, L"WindowsBluetooth") || Uses(config.mouse, L"WindowsBluetooth") || Uses(config.keyboard, L"WindowsBluetooth") || Uses(config.keyboard, L"KeyboardAuto");
 
     if (needsHidpp && !hidppListener_)
     {
