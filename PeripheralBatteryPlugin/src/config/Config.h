@@ -13,7 +13,7 @@ struct DisplayOptions
     bool showPercentSign = true;    // "82%" instead of "82"
     bool showCharging = true;       // "⚡" while charging
     bool colors = true;             // value red on low battery, green while charging (plugin draws itself)
-    std::wstring headphonesLabel = L"M4";
+    std::wstring headphonesLabel = L"Headphones";
     std::wstring mouseLabel = L"Mouse";
     std::wstring keyboardLabel = L"Keyboard";
 
@@ -39,10 +39,10 @@ struct Config
     int lowBatteryWarning = 15;     // notification at <= this value; 0 = off
     bool verboseLogging = false;
     DisplayOptions display;
-    DeviceConfig headphones{ true, L"WindowsBluetooth", L"MOMENTUM 4" };
+    DeviceConfig headphones{ true, L"WindowsBluetooth", L"" };
     DeviceConfig mouse{ true, L"LogitechHidpp", L"" };
     // Best-effort only: Windows battery is available only for some Bluetooth keyboards.
-    DeviceConfig keyboard{ true, L"WindowsBluetooth", L"keyboard" };
+    DeviceConfig keyboard{ true, L"KeyboardAuto", L"keyboard" };
 
     bool operator==(const Config&) const = default;
 };
