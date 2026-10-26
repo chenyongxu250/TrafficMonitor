@@ -2,8 +2,10 @@
 #include <windows.h>
 #include <setupapi.h>
 #include <hidsdi.h>
+#include <hidpi.h>
 #include <devpkey.h>
 #include <string>
+#include <vector>
 #include <mutex>
 #include <thread>
 #include <atomic>
@@ -55,9 +57,8 @@ void scanWindowsBatteryProperties(){
  headphoneState=hp;keyboardState=kb;
 }
 bool inphicVidPid(USHORT v,USHORT p){
- if(v==0x248A&&(p==0x5B2E||p==0x5B2F))return true;
- if(v==0x1D57&&p>=0xFA60&&p<=0xFA68)return true;
- return v==0x045E&&(p==0x00DB||p==0x00DC);
+ if(v==0x1D57&&(p==0xFA60||p==0xFA65))return true;
+ return v==0x045E&&(p==0x0095||p==0x0090||p==0x0093||p==0x0099||p==0x0098||p==0x0273||p==0x0271);
 }
 void scanInphic(){
  GUID guid{};HidD_GetHidGuid(&guid);
@@ -73,9 +74,18 @@ void scanInphic(){
   if(dev==INVALID_HANDLE_VALUE)continue;
   HIDD_ATTRIBUTES a{};a.Size=sizeof(a);
   if(HidD_GetAttributes(dev,&a)&&inphicVidPid(a.VendorID,a.ProductID)){
+   // Strictly filter to Usage Page 0x000A (the device status channel), never Usage Page 0x0001
+   // where mouse movement and keyboard key reports live.
+   PHIDP_PREPARSED_DATA pp=nullptr; HIDP_CAPS caps{};
+   bool statusInterface=false;
+   if(HidD_GetPreparsedData(dev,&pp)){
+    if(HidP_GetCaps(pp,&caps)==HIDP_STATUS_SUCCESS)
+     statusInterface=(caps.UsagePage==0x000A && caps.InputReportByteLength>=5);
+    HidD_FreePreparsedData(pp);
+   }
+   if(!statusInterface){CloseHandle(dev);continue;}
    wchar_t name[256]{};HidD_GetProductString(dev,name,sizeof(name));if(name[0])productName=name;
    BYTE report[64]{};DWORD got=0;
-   // Accept only the documented IN10 status battery frame, not generic mouse/keyboard reports.
    if(ReadFile(dev,report,sizeof(report),&got,nullptr)&&got>=5&&report[0]==3&&report[2]==0x40&&report[4]<=100)found=report[4];
    CloseHandle(dev);if(found>=0)break;continue;
   }
