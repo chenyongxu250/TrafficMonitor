@@ -6,6 +6,10 @@ on:
     paths:
       - 'PeripheralBatteryPlugin/**'
       - '.github/workflows/build-peripheral-battery.yml'
+  pull_request:
+    paths:
+      - 'PeripheralBatteryPlugin/**'
+      - '.github/workflows/build-peripheral-battery.yml'
   workflow_dispatch:
 
 permissions:
