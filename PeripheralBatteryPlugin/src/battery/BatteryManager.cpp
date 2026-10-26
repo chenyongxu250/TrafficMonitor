@@ -157,8 +157,8 @@ void BatteryManager::WaitForNextRefresh(int intervalSeconds)
 void BatteryManager::StartEventSources(const Config& config)
 {
     // Only start what the configuration needs; once started, they run until process exit.
-    const bool needsHidpp = Uses(config.headphones, L"LogitechHidpp") || Uses(config.mouse, L"LogitechHidpp");
-    const bool needsBluetooth = Uses(config.headphones, L"WindowsBluetooth") || Uses(config.mouse, L"WindowsBluetooth");
+    const bool needsHidpp = Uses(config.headphones, L"LogitechHidpp") || Uses(config.mouse, L"LogitechHidpp") || Uses(config.keyboard, L"LogitechHidpp");
+    const bool needsBluetooth = Uses(config.headphones, L"WindowsBluetooth") || Uses(config.mouse, L"WindowsBluetooth") || Uses(config.keyboard, L"WindowsBluetooth");
 
     if (needsHidpp && !hidppListener_)
     {
@@ -237,6 +237,12 @@ bool BatteryManager::IsMouseEnabled() const
 {
     std::lock_guard lock(mutex_);
     return mouseEnabled_;
+}
+
+bool BatteryManager::IsKeyboardEnabled() const
+{
+    std::lock_guard lock(mutex_);
+    return keyboardEnabled_;
 }
 
 void BatteryManager::CheckLowBattery(Device& device, const BatteryStatus& shown, const BatteryStatus& raw,
@@ -345,11 +351,12 @@ void BatteryManager::WorkerLoop() noexcept
 
             Configure(headphones_, config.headphones);
             Configure(mouse_, config.mouse);
+            Configure(keyboard_, config.keyboard);
             StartEventSources(config);
 
             // "—" only after at least two intervals without a response (StatusFilter).
             const std::chrono::seconds minOutage(2 * config.updateIntervalSeconds);
-            BatteryStatus rawHeadphones, rawMouse;
+            BatteryStatus rawHeadphones, rawMouse, rawKeyboard;
             BatteryStatus headphones = Refresh(headphones_, rawHeadphones, minOutage);
             {
                 // Show right away: the mouse query takes 2 s or more when the mouse is asleep or off,
@@ -358,18 +365,24 @@ void BatteryManager::WorkerLoop() noexcept
                 headphonesStatus_ = headphones;
             }
             BatteryStatus mouse = Refresh(mouse_, rawMouse, minOutage);
+            BatteryStatus keyboard = Refresh(keyboard_, rawKeyboard, minOutage);
             LogResult(headphones_, rawHeadphones, headphones);
             LogResult(mouse_, rawMouse, mouse);
+            LogResult(keyboard_, rawKeyboard, keyboard);
             CheckChargeEnd(headphones_, rawHeadphones);
             CheckChargeEnd(mouse_, rawMouse);
+            CheckChargeEnd(keyboard_, rawKeyboard);
             CheckLowBattery(headphones_, headphones, rawHeadphones, config.lowBatteryWarning);
             CheckLowBattery(mouse_, mouse, rawMouse, config.lowBatteryWarning);
+            CheckLowBattery(keyboard_, keyboard, rawKeyboard, config.lowBatteryWarning);
 
             std::lock_guard lock(mutex_);
             headphonesStatus_ = std::move(headphones);
             mouseStatus_ = std::move(mouse);
+            keyboardStatus_ = std::move(keyboard);
             headphonesEnabled_ = config.headphones.enabled;
             mouseEnabled_ = config.mouse.enabled;
+            keyboardEnabled_ = config.keyboard.enabled;
         }
         catch (const std::exception& e)
         {
@@ -518,6 +531,12 @@ BatteryStatus BatteryManager::GetMouseStatus() const
 {
     std::lock_guard lock(mutex_);
     return mouseStatus_;
+}
+
+BatteryStatus BatteryManager::GetKeyboardStatus() const
+{
+    std::lock_guard lock(mutex_);
+    return keyboardStatus_;
 }
 
 DisplayOptions BatteryManager::GetDisplayOptions() const
