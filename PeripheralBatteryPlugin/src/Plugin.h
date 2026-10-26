@@ -5,6 +5,7 @@
 #include "battery/BatteryManager.h"
 #include "items/HeadphonesBatteryItem.h"
 #include "items/MouseBatteryItem.h"
+#include "items/KeyboardBatteryItem.h"
 #include "utils/UiNotifier.h"
 
 class PeripheralBatteryPlugin : public ITMPlugin
@@ -32,6 +33,7 @@ private:
     BatteryManager manager_;
     HeadphonesBatteryItem headphones_{ manager_, drawContext_ };
     MouseBatteryItem mouse_{ manager_, drawContext_ };
+    KeyboardBatteryItem keyboard_{ manager_, drawContext_ };
 };
 
 extern "C" __declspec(dllexport) ITMPlugin* TMPluginGetInstance();
