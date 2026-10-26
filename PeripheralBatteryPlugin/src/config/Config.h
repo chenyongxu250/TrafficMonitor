@@ -15,6 +15,7 @@ struct DisplayOptions
     bool colors = true;             // value red on low battery, green while charging (plugin draws itself)
     std::wstring headphonesLabel = L"M4";
     std::wstring mouseLabel = L"Mouse";
+    std::wstring keyboardLabel = L"Keyboard";
 
     bool operator==(const DisplayOptions&) const = default;
 };
@@ -40,6 +41,8 @@ struct Config
     DisplayOptions display;
     DeviceConfig headphones{ true, L"WindowsBluetooth", L"MOMENTUM 4" };
     DeviceConfig mouse{ true, L"LogitechHidpp", L"" };
+    // Best-effort only: Windows battery is available only for some Bluetooth keyboards.
+    DeviceConfig keyboard{ true, L"WindowsBluetooth", L"keyboard" };
 
     bool operator==(const Config&) const = default;
 };
