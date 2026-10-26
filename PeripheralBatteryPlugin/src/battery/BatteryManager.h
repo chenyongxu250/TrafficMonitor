@@ -57,10 +57,12 @@ public:
 
     BatteryStatus GetHeadphonesStatus() const;
     BatteryStatus GetMouseStatus() const;
+    BatteryStatus GetKeyboardStatus() const;
     DisplayOptions GetDisplayOptions() const;
     int GetLowBatteryWarning() const;
     bool IsHeadphonesEnabled() const;
     bool IsMouseEnabled() const;
+    bool IsKeyboardEnabled() const;
 
 private:
     struct Device
@@ -94,6 +96,7 @@ private:
     // Worker only.
     Device headphones_{ L"Headphones" };
     Device mouse_{ L"Mouse" };
+    Device keyboard_{ L"Keyboard" };
     std::optional<Config> lastConfig_;
     std::unique_ptr<HidppListener> hidppListener_;
     std::unique_ptr<BluetoothWatcher> bluetoothWatcher_;
@@ -113,8 +116,10 @@ private:
     std::function<void(std::wstring)> notify_;
     BatteryStatus headphonesStatus_;
     BatteryStatus mouseStatus_;
+    BatteryStatus keyboardStatus_;
     DisplayOptions displayOptions_;
     int lowBatteryWarning_ = Config{}.lowBatteryWarning;
     bool headphonesEnabled_ = true;
     bool mouseEnabled_ = true;
+    bool keyboardEnabled_ = true;
 };
