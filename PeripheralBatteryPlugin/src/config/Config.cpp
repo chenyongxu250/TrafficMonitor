@@ -67,11 +67,13 @@ Config LoadConfig(const std::wstring& path)
     config.display.colors = ReadBool(path, L"General", L"Colors", defaults.display.colors);
     config.display.headphonesLabel = ReadString(path, L"Headphones", L"Label", defaults.display.headphonesLabel);
     config.display.mouseLabel = ReadString(path, L"Mouse", L"Label", defaults.display.mouseLabel);
+    config.display.keyboardLabel = ReadString(path, L"Keyboard", L"Label", defaults.display.keyboardLabel);
     config.verboseLogging = ReadBool(path, L"General", L"VerboseLogging", defaults.verboseLogging);
     config.lowBatteryWarning = std::clamp(
         ReadInt(path, L"General", L"LowBatteryWarning", defaults.lowBatteryWarning), 0, 100);
     config.headphones = ReadDevice(path, L"Headphones", defaults.headphones);
     config.mouse = ReadDevice(path, L"Mouse", defaults.mouse);
+    config.keyboard = ReadDevice(path, L"Keyboard", defaults.keyboard);
     return config;
 }
 
@@ -91,6 +93,10 @@ int AddMissingKeys(const std::wstring& path)
         { L"General", L"VerboseLogging", L"0" },
         { L"Headphones", L"Label", L"M4" },
         { L"Mouse", L"Label", L"Mouse" },
+        { L"Keyboard", L"Enabled", L"1" },
+        { L"Keyboard", L"Provider", L"WindowsBluetooth" },
+        { L"Keyboard", L"NameContains", L"keyboard" },
+        { L"Keyboard", L"Label", L"Keyboard" },
     };
     constexpr wchar_t kMissing[] = L"\x1F<missing>";
 
@@ -229,6 +235,10 @@ bool SaveConfig(const std::wstring& path, const Config& config, std::wstring& er
         { L"Mouse", L"Provider", config.mouse.provider },
         { L"Mouse", L"NameContains", config.mouse.nameContains },
         { L"Mouse", L"Label", config.display.mouseLabel },
+        { L"Keyboard", L"Enabled", flag(config.keyboard.enabled) },
+        { L"Keyboard", L"Provider", config.keyboard.provider },
+        { L"Keyboard", L"NameContains", config.keyboard.nameContains },
+        { L"Keyboard", L"Label", config.display.keyboardLabel },
     };
     for (const Entry& entry : entries)
     {
