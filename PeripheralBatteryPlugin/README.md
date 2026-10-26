@@ -3,8 +3,8 @@
 A 64-bit TrafficMonitor plugin that provides three separately selectable display items:
 
 1. **Mouse Battery** — Logitech wireless mouse through Logitech HID++ (based on the existing PeripheralBatteryPlugin provider).
-2. **Headphones Battery** — Windows Bluetooth battery information, when exposed by the device/driver.
-3. **Keyboard Battery** — best-effort Windows Bluetooth battery property lookup. Keyboard support is optional; if Windows does not report a percentage, the item shows an unknown/disconnected indicator rather than inventing a value.
+2. **Headphones Battery** — Windows Bluetooth battery information, automatically choosing a connected device that exposes a percentage.
+3. **Keyboard Battery** — best-effort combined lookup through Windows Bluetooth battery properties and Logitech HID++ (for keyboards paired through Logitech receivers). If neither source reports a percentage, the item shows an unknown/disconnected indicator rather than inventing a value.
 
 ## Build without installing Visual Studio locally
 
@@ -18,7 +18,7 @@ Workflow: `.github/workflows/build-peripheral-battery.yml`
 2. Copy `PeripheralBatteryPlugin.dll` directly into `plugins` beside `TrafficMonitor.exe` (do not create a subfolder).
 3. Start TrafficMonitor and open **Display Settings**.
 4. Select any combination of **Headphones Battery**, **Mouse Battery**, and **Keyboard Battery**.
-5. If the keyboard does not appear to report a value, edit `PeripheralBattery.ini` in the plugin configuration folder. Set `[Keyboard] NameContains` to a distinctive part of the Windows device name.
+5. If the keyboard does not appear to report a value, edit `PeripheralBattery.ini` in the plugin configuration folder. Set `[Keyboard] NameContains` to a distinctive part of its Windows device name, and keep `Provider=KeyboardAuto` to try both supported sources.
 
 ## Notes
 
